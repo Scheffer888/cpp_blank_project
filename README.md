@@ -5,7 +5,7 @@ Supports both full-project builds and isolated file builds with smart folder mir
 
 ---
 
-## 📦 Requirements
+## Requirements
 
 - [MSYS2](https://www.msys2.org) with:
   ```bash
@@ -14,24 +14,30 @@ Supports both full-project builds and isolated file builds with smart folder mir
   ```
 - VS Code with the **C/C++ Extension** from Microsoft
 
+- Make sure to open VS code through mysys mingw64 shell:
+  ``` bash
+  cd (your repo)
+  code .
+  ```
+
 ---
 
-## ⚙️ Build & Run (VS Code Tasks)
+## Build & Run (VS Code Tasks)
 
 Press `Ctrl+Shift+B` or run **"Run Build Task…"** from the Command Palette and choose:
 
-### 🧱 Full Project Build
+### Full Project Build
 - **C/C++: Build entire project with Makefile**  
   → Uses the Makefile to build all `src/*.cpp` into `build/*.exe`
 
-### 🧪 Build a Single File (Standalone)
+### Build a Single File (Standalone)
 - **C/C++: Build active file with Makefile**  
   → Builds only the currently open `.cpp` file  
   → Output: `build/<subfolder>/<file>.exe` (mirrors source path)
 
 ---
 
-## ▶️ Run the Program
+## Run the Program
 
 After building, you can:
 ```bash
@@ -46,7 +52,7 @@ Or debug using VS Code's **Run > Start Debugging (F5)** and select:
 
 ---
 
-## 🧼 Clean the Build
+## Clean the Build
 
 From VS Code:
 - Run the task: **Clean Build Directory**
@@ -58,7 +64,7 @@ make clean
 
 ---
 
-## 📐 Code Conventions
+## Code Conventions
 
 | Element       | Style                  |
 |---------------|------------------------|
@@ -71,12 +77,10 @@ make clean
 
 ---
 
-## 💡 Notes
+## Notes
 
 - Object files and binaries are placed in the `build/` directory.
 - The folder structure of `src/` is mirrored under `build/` for standalone builds.
 - Header dependencies are automatically tracked via `.d` files (thanks to `-MMD -MP`).
 
 ---
-
-Happy coding 🚀
