@@ -1,6 +1,10 @@
-# C++ Training Template
+# Intro to High-Performance Computing in Finance
 
-A minimal and flexible C++ project setup using **g++**, **Makefile**, and **VS Code**.  
+Repository for the **Intro to High-Performance Computing in Finance** course.
+
+## Overview
+
+Project setup using **g++**, **Makefile**, and **VS Code**.  
 Supports both full-project builds and isolated file builds with smart folder mirroring.
 
 ---
@@ -12,55 +16,77 @@ Supports both full-project builds and isolated file builds with smart folder mir
   pacman -Syu
   pacman -S mingw-w64-x86_64-gcc make gdb
   ```
+
 - VS Code with the **C/C++ Extension** from Microsoft
 
-- Make sure to open VS code through mysys mingw64 shell:
-  ``` bash
-  cd (your repo)
+- Open VS Code through the MSYS2 **MINGW64** shell:
+  ```bash
+  cd (your-repo-folder)
   code .
   ```
 
 ---
 
-## Build & Run (VS Code Tasks)
+## Build & Run
 
-Press `Ctrl+Shift+B` or run **"Run Build Task…"** from the Command Palette and choose:
+You can build and run the project using either **VS Code tasks** or **the terminal**.
 
-### Full Project Build
-- **C/C++: Build entire project with Makefile**  
-  → Uses the Makefile to build all `src/*.cpp` into `build/*.exe`
+### 🔧 Full Project Build
 
-### Build a Single File (Standalone)
-- **C/C++: Build active file with Makefile**  
-  → Builds only the currently open `.cpp` file  
-  → Output: `build/<subfolder>/<file>.exe` (mirrors source path)
+> Builds all `.cpp` files under `src/` and links into one executable.
+
+- VS Code:
+  - `Ctrl+Shift+B` → "C/C++: Build entire project with Makefile"
+- Terminal:
+  ```bash
+  make
+  ```
+
+### ▶️ Run the Program
+
+After building, run:
+
+```bash
+make run
+```
+
+This will run the final executable (e.g., `build/main.exe`).
+
+Or run manually:
+
+```bash
+./build/main.exe
+```
 
 ---
 
-## Run the Program
+### 📄 Build a Single File (Standalone Mode)
 
-After building, you can:
-```bash
-cd build
-./main.exe         # or any other .exe you built
-```
+> Builds a single file using the `make active` target.
 
-Or debug using VS Code's **Run > Start Debugging (F5)** and select:
+- VS Code:
+  - `Ctrl+Shift+B` → "C/C++: Build active file with Makefile"
 
-- `C/C++: Makefile build and debug entire project`
-- `C/C++: Makefile build and debug active file`
+- Terminal:
+  ```bash
+  make active SINGLE_SRC=src/assignment_a.cpp
+  ```
+
+Output is placed in `build/<filename>.exe`
 
 ---
 
-## Clean the Build
+## 🧹 Clean the Build
 
-From VS Code:
-- Run the task: **Clean Build Directory**
+To remove compiled files and build artifacts:
 
-Or manually from terminal:
-```bash
-make clean
-```
+- VS Code:
+  - Run task: "Clean Build Directory"
+
+- Terminal:
+  ```bash
+  make clean
+  ```
 
 ---
 
@@ -79,8 +105,22 @@ make clean
 
 ## Notes
 
-- Object files and binaries are placed in the `build/` directory.
-- The folder structure of `src/` is mirrored under `build/` for standalone builds.
-- Header dependencies are automatically tracked via `.d` files (thanks to `-MMD -MP`).
+- Object files, executables, and dependency files are placed in `build/`
+- Header dependencies are automatically tracked via `.d` files (`-MMD -MP`)
+- The `make active` target mirrors your `src/` folder structure for clean builds
+- `make run` is a shortcut to run the default executable after building
+
+---
+
+## Submission Tip
+
+Before compressing your project:
+
+```bash
+make clean
+zip -r project_name.zip src Makefile README.md
+```
+
+Make sure `build/` is **not** included in the zip.
 
 ---

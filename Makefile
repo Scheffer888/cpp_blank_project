@@ -7,7 +7,7 @@ SRC_DIR   = src
 BUILD_DIR = build
 
 # Executable target
-TARGET    = $(BUILD_DIR)/main.exe
+TARGET    = $(BUILD_DIR)/project.exe
 
 # Source and Object Files
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
@@ -54,6 +54,9 @@ endif
 
 # Clean up generated outputs
 clean:
-	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*.exe
+	rm -rf $(BUILD_DIR)
+
+run: $(TARGET)
+	./$(TARGET)
 
 .PHONY: all clean active
