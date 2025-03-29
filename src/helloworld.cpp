@@ -16,9 +16,3 @@ void helloworld()
     }
     cout << endl;
 }
-
-int main() // This main function is just for testing purposes, you can remove it if you only want the helloworld function.
-{
-    helloworld();
-    return 0;
-}

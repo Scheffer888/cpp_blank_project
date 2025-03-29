@@ -1,12 +1,18 @@
+# Compiler and build settings
 CXX       = g++
-CXXFLAGS  = -Wall -Wextra -std=c++17 -g -O0
+CXXFLAGS  = -Wall -Wextra -std=c++17 -g -O0 -MMD -MP
 
+# Directories
 SRC_DIR   = src
 BUILD_DIR = build
+
+# Executable target
 TARGET    = $(BUILD_DIR)/main.exe
 
+# Source and Object Files
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+DEPS := $(OBJS:.o=.d)
 
 # Default rule: build entire project
 all: $(TARGET)
@@ -16,7 +22,7 @@ all: $(TARGET)
 $(info 🔍 SRCS: $(SRCS))
 $(info 🔍 OBJS: $(OBJS))
 
-# Link all .o files into final executable
+# Link object files into final executable
 $(TARGET): $(OBJS)
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $^ -o $@
@@ -42,6 +48,9 @@ endif
 	 $(CXX) $(CXXFLAGS) $$unix_path -o $$out; \
 	 echo "✅ Built: $$out"
 
+
+# Include header dependencies (.d files)
+-include $(DEPS)
 
 # Clean up generated outputs
 clean:
