@@ -1,6 +1,3 @@
-# Prerequisites
-*.d
-
 # Ignore build artifacts
 build/*
 
@@ -9,6 +6,7 @@ build/*
 *.lo
 *.o
 *.obj
+*.d
 
 # Precompiled Headers
 *.gch
@@ -42,3 +40,6 @@ Thumbs.db
 *.vcxproj
 *.vcxproj.filters
 *.sln
+
+# Zip files
+*.zip

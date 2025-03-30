@@ -41,13 +41,16 @@ ifndef SINGLE_SRC
 endif
 	@mkdir -p $(BUILD_DIR)
 	@echo "📄 Compiling single file: $(SINGLE_SRC)"
-	@unix_path=$$(cygpath "$(SINGLE_SRC)"); \
-	 filename=$$(basename $$unix_path); \
+	@unix_src=$$( \
+		case "$(OS)" in \
+			Windows_NT) cygpath "$(SINGLE_SRC)" ;; \
+			*) echo "$(SINGLE_SRC)" ;; \
+		esac); \
+	 filename=$$(basename $$unix_src); \
 	 name=$${filename%.*}; \
 	 out=$(BUILD_DIR)/$$name.exe; \
-	 $(CXX) $(CXXFLAGS) $$unix_path -o $$out; \
+	 $(CXX) $(CXXFLAGS) $$unix_src -o $$out; \
 	 echo "✅ Built: $$out"
-
 
 # Include header dependencies (.d files)
 -include $(DEPS)
@@ -55,6 +58,7 @@ endif
 # Clean up generated outputs
 clean:
 	rm -rf $(BUILD_DIR)
+	@echo "🧹 Cleaned build directory"
 
 run: $(TARGET)
 	./$(TARGET)
