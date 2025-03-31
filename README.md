@@ -52,7 +52,7 @@ You can build and run the project using either **VS Code tasks** or **the termin
 
 ### ▶️ Run the Program
 
-After building, run:
+After building `make all`, run:
 
 ```bash
 make run
@@ -87,7 +87,7 @@ Output is placed in `build/<filename>.exe`
 
 
 
-### 🧹 Clean the Build
+### Clean the Build
 
 To remove compiled files and build artifacts:
 
@@ -323,4 +323,66 @@ For Makefile basics, refer to this tutorial:
 And for the full GNU Make documentation:  
 [https://www.gnu.org/software/make/manual/make.html](https://www.gnu.org/software/make/manual/make.html)
 
+---
 
+## 🚀 Vectorization Support
+
+This project supports both **manual** and **automatic vectorization reporting** to help you understand and optimize your performance-critical code.
+
+### Manual Vectorization Builds (Terminal)
+
+To compile with **AVX2 and FMA** vectorization manually:
+
+```bash
+g++ -O3 -mavx2 -mfma ./src/class_vectorization_1.cpp -o ./build/class_vectorization_auto.exe
+```
+
+### Check Auto-Vectorization Decisions (Inline Report)
+
+Add `-fopt-info-vec-optimized` to see which loops were vectorized:
+
+```bash
+g++ -O3 -mavx2 -mfma -fopt-info-vec-optimized ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
+```
+
+### Save Vectorization Report to File
+
+Redirect vectorization info into a log file for later review:
+
+```bash
+g++ -O3 -mavx2 -mfma -fopt-info-vec-optimized=./build/vector_report.txt ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
+```
+
+---
+
+## 🛠️ Vectorization via Makefile (Recommended)
+
+The Makefile automatically generates **vectorization reports** when using the following modes:
+
+| Build Mode | Optimization Level | Vectorization Report |
+|------------|--------------------|-----------------------|
+| `dev`      | `-O1`              | `./build/project_vector_report.txt` |
+| `release`  | `-O2`              | `./build/project_vector_report.txt` |
+| `fast`     | `-O3 -march=native -mavx2 -mfma` | `./build/project_vector_report.txt` |
+
+For **entire project builds**, you can build with:
+
+```bash
+make all MODE=fast
+```
+
+For **active file builds**, the report is generated per file:
+
+```bash
+make active SINGLE_SRC=src/class_vectorization_1.cpp MODE=fast
+```
+
+Generates:
+```
+build/class_vectorization_1_vector_report.txt
+```
+
+This will generate the vectorization report for all files in the project.
+
+You can also run this from the VS Code build task:  
+**`Build Active File (fast)`**

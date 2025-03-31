@@ -2,15 +2,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Clean Build Directory",
+            "label": "🧹 Clean Build Directory",
             "type": "shell",
             "command": "make",
             "args": ["clean"],
             "options": {
-                "cwd": "${workspaceFolder}",
-                "shell": {
-                    "executable": "C:\\msys64\\mingw64.exe"
-                }
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [],
             "group": {
@@ -19,37 +16,113 @@
             }
         },
         {
-            "label": "Build Entire Project",
+            "label": "🛠️ Build Entire Project (debug)",
             "type": "shell",
             "command": "make",
-            "args": ["all"],
+            "args": ["all", "MODE=debug"],
             "options": {
-                "cwd": "${workspaceFolder}",
+              "cwd": "${workspaceFolder}"
             },
             "problemMatcher": ["$gcc"],
             "group": {
-                "kind": "build",
-                "isDefault": true
+              "kind": "build",
+              "isDefault": false
             },
-            "detail": "Builds the entire project using Makefile and g++"
-        },
+            "detail": "Builds the entire project in debug mode (-g -O0)"
+        },          
         {
-            "label": "Build Active File",
+            "label": "Build Entire Project (release)",
             "type": "shell",
             "command": "make",
-            "args": [
-                "active",
-                "SINGLE_SRC=${file}"
-            ],
+            "args": ["all", "MODE=release"],
             "options": {
-                "cwd": "${workspaceFolder}",
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
-            "detail": "Builds the currently active .cpp file using Makefile and g++"
+            "detail": "Builds the entire project in release mode"
+        },
+        {
+            "label": "🛠️ Build Entire Project (fast)",
+            "type": "shell",
+            "command": "make",
+            "args": ["all", "MODE=fast"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": "build",
+            "detail": "Builds the project with -O3 and march=native"
+        },
+        {
+            "label": "🛠️ Build Active File (debug)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "active",
+                "MODE=debug",
+                "SINGLE_SRC=${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Builds the currently active .cpp file in debug mode"
+        },
+        {
+            "label": "🛠️ Build Active File (dev)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "active",
+                "MODE=dev",
+                "SINGLE_SRC=${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": "build",
+            "detail": "Builds the currently active .cpp file in dev mode (-O1)"
+        },
+        {
+            "label": "🛠️ Build Active File (release)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "active",
+                "MODE=release",
+                "SINGLE_SRC=${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": "build",
+            "detail": "Builds the currently active .cpp file in release mode (-O2)"
+        },
+        {
+            "label": "🛠️ Build Active File (fast)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "active",
+                "MODE=fast",
+                "SINGLE_SRC=${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": "build",
+            "detail": "Builds the currently active .cpp file in fast mode (-O3 -march=native)"
         }
     ]
 }
