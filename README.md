@@ -60,12 +60,15 @@ make run
 
 This will run the final executable (e.g., `build/main.exe`).
 
-Or run manually:
-
+Or run manually in Linux:
 ```bash
 ./build/main.exe
 ```
 
+or, if on Windows: 
+```bash	
+build\assignment_b.exe
+```
 
 
 ### 📄 Build a Single File (Standalone Mode)
@@ -129,11 +132,13 @@ make clean
 zip -r project_name.zip src Makefile README.md
 ```
 
+or 
+```bash
+make clean
+zip -r assignment_b-eduardoscheffer.zip src/assignment_b.cpp src/utilities.h
+```
+
 Make sure `build/` is **not** included in the zip.
-
-
-zip -r assignment_a_eduardoscheffer.zip src Makefile README.md
-
 
 ---
 
@@ -317,3 +322,5 @@ For Makefile basics, refer to this tutorial:
 
 And for the full GNU Make documentation:  
 [https://www.gnu.org/software/make/manual/make.html](https://www.gnu.org/software/make/manual/make.html)
+
+
