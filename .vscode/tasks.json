@@ -5,7 +5,9 @@
             "label": "🧹 Clean Build Directory",
             "type": "shell",
             "command": "make",
-            "args": ["clean"],
+            "args": [
+                "clean"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -19,43 +21,58 @@
             "label": "🛠️ Build Entire Project (debug)",
             "type": "shell",
             "command": "make",
-            "args": ["all", "MODE=debug"],
-            "options": {
-              "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": ["$gcc"],
-            "group": {
-              "kind": "build",
-              "isDefault": false
-            },
-            "detail": "Builds the entire project in debug mode (-g -O0)"
-        },          
-        {
-            "label": "Build Entire Project (release)",
-            "type": "shell",
-            "command": "make",
-            "args": ["all", "MODE=release"],
+            "args": [
+                "all",
+                "MODE=debug"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": false
             },
-            "detail": "Builds the entire project in release mode"
+            "detail": "Builds the entire project in debug mode (-g -O0)"
+        },
+        {
+            "label": "Build Entire Project (release)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "all",
+                "MODE=release"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "detail": "Builds the entire project with -O2 and -ffast-math"
         },
         {
             "label": "🛠️ Build Entire Project (fast)",
             "type": "shell",
             "command": "make",
-            "args": ["all", "MODE=fast"],
+            "args": [
+                "all",
+                "MODE=fast"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": "build",
-            "detail": "Builds the project with -O3 and march=native"
+            "detail": "Builds the project with -O3, march=native and -ffast-math"
         },
         {
             "label": "🛠️ Build Active File (debug)",
@@ -69,11 +86,10 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": ["$gcc"],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
             "detail": "Builds the currently active .cpp file in debug mode"
         },
         {
@@ -88,7 +104,9 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": "build",
             "detail": "Builds the currently active .cpp file in dev mode (-O1)"
         },
@@ -104,7 +122,9 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": "build",
             "detail": "Builds the currently active .cpp file in release mode (-O2)"
         },
@@ -120,9 +140,34 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": "build",
             "detail": "Builds the currently active .cpp file in fast mode (-O3 -march=native)"
+        },
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe build active file",
+            "command": "C:/msys64/mingw64/bin/g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "C:/msys64/mingw64/bin"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Task generated by Debugger."
         }
     ]
 }

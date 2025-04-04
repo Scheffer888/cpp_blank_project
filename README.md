@@ -222,10 +222,10 @@ This allows you to use `midway` as a shortcut instead of the full hostname.
 
 ### Running Code on a Compute Node
 
-Midway3 uses a job scheduling system, so you should not run compute-heavy code on the login node. To run your program interactively, you must request a compute node using the `sinteractive` command. For example, to request a node for 1 hour under the `finm32950` account:
+Midway3 uses a job scheduling system, so you should not run compute-heavy code on the login node. To run your program interactively, you must request a compute node using the `sinteractive` command. For example, to request a node for 2 hour with 24 cores under the `finm32950` account:
 
 ```bash
-sinteractive --time=1:0:0 --account=finm32950
+sinteractive --time=2:0:0 --ntasks=24 --account=finm32950
 ```
 
 This opens an interactive session on a compute node where you can compile and run your code as needed. It's recommended to request short sessions to increase your chances of getting a node quickly.
@@ -334,7 +334,7 @@ This project supports both **manual** and **automatic vectorization reporting** 
 To compile with **AVX2 and FMA** vectorization manually:
 
 ```bash
-g++ -O3 -mavx2 -mfma ./src/class_vectorization_1.cpp -o ./build/class_vectorization_auto.exe
+g++ -O3 -march=native ./src/class_vectorization_1.cpp -o ./build/class_vectorization_auto.exe
 ```
 
 ### Check Auto-Vectorization Decisions (Inline Report)
@@ -342,7 +342,7 @@ g++ -O3 -mavx2 -mfma ./src/class_vectorization_1.cpp -o ./build/class_vectorizat
 Add `-fopt-info-vec-optimized` to see which loops were vectorized:
 
 ```bash
-g++ -O3 -mavx2 -mfma -fopt-info-vec-optimized ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
+g++ -O3 -march=native -fopt-info-vec-optimized ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
 ```
 
 ### Save Vectorization Report to File
@@ -350,8 +350,14 @@ g++ -O3 -mavx2 -mfma -fopt-info-vec-optimized ./src/class_vectorization_1.cpp -o
 Redirect vectorization info into a log file for later review:
 
 ```bash
-g++ -O3 -mavx2 -mfma -fopt-info-vec-optimized=./build/vector_report.txt ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
+g++ -O3 -march=native -fopt-info-vec-optimized=./build/vector_report.txt ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
 ```
+You can change the `optimized` parameter to one of the following:
+- `all` - 	Everything: successes, failures, diagnostics
+- ``(nothing) - Successes + failures
+- `missed` - Only loops that failed to vectorize
+- `optimized` - 	Only loops that succeeded in being vectorized
+
 
 ---
 
@@ -374,7 +380,7 @@ make all MODE=fast
 For **active file builds**, the report is generated per file:
 
 ```bash
-make active SINGLE_SRC=src/class_vectorization_1.cpp MODE=fast
+make active SINGLE_SRC=src/assignment_b.cpp MODE=fast
 ```
 
 Generates:

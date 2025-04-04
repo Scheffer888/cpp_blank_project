@@ -3,17 +3,13 @@ MODE ?= debug
 
 # Compiler and build settings
 CXX       = g++
-BASE_FLAGS  = -Wall -Wextra -std=c++17 -MMD -MP
+BASE_FLAGS  = -Wall -Wextra -std=c++20 -MMD -MP
 
 # Dynamic vectorization report flag (default is empty)
-VEC_REPORT :=
-ifeq ($(MODE),dev)
-    VEC_REPORT = -fopt-info-vec-optimized=$(BUILD_DIR)/project_vector_report.txt
-else ifeq ($(MODE),release)
-    VEC_REPORT = -fopt-info-vec-optimized=$(BUILD_DIR)/project_vector_report.txt
-else ifeq ($(MODE),fast)
-    VEC_REPORT = -fopt-info-vec-optimized=$(BUILD_DIR)/project_vector_report.txt
-endif
+#	 all, optimized, (none), missed
+REPORT_TYPE := -all
+
+VEC_REPORT := "-fopt-info-vec$(REPORT_TYPE)"
 
 # Set the optimization level and flags based on the selected mode
 ifeq ($(MODE),debug)
@@ -21,9 +17,9 @@ ifeq ($(MODE),debug)
 else ifeq ($(MODE),dev)
     CXXFLAGS = $(BASE_FLAGS) -O1
 else ifeq ($(MODE),release)
-    CXXFLAGS = $(BASE_FLAGS) -O2
+    CXXFLAGS = $(BASE_FLAGS) -O2 -ffast-math
 else ifeq ($(MODE),fast)
-    CXXFLAGS = $(BASE_FLAGS) -O3 -march=native
+    CXXFLAGS = $(BASE_FLAGS) -O3 -march=native -ffast-math
 else
     $(error ❌ Unknown MODE: $(MODE))
 endif
@@ -60,7 +56,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "🛠️ Compiling: $< → $@"
 	@mkdir -p $(BUILD_DIR)
 ifeq ($(filter $(MODE),dev release fast),$(MODE))
-	$(CXX) $(CXXFLAGS) -fopt-info-vec-optimized=$(BUILD_DIR)/project_vector_report.txt -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(VEC_REPORT)=$(BUILD_DIR)/project_vector_report.txt -c $< -o $@
 else
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 endif
@@ -79,10 +75,12 @@ endif
 		esac); \
 	 filename=$$(basename $$unix_src); \
 	 name=$${filename%.*}; \
-	 vec_report="$(BUILD_DIR)/$${name}_vector_report.txt"; \
+	 obj=$(BUILD_DIR)/$$name.o; \
+	 vec_report=$(BUILD_DIR)/$${name}_vector_report.txt; \
 	 out=$(BUILD_DIR)/$$name.exe; \
 	 echo "🧠 Vector report: $$vec_report"; \
-	 $(CXX) $(CXXFLAGS) -fopt-info-vec-optimized=$$vec_report $$unix_src -o $$out; \
+	 $(CXX) $(CXXFLAGS) "-fopt-info-vec$(REPORT_TYPE)=$$vec_report" -c $$unix_src -o $$obj; \
+	 $(CXX) $(CXXFLAGS) $$obj -o $$out; \
 	 echo "✅ Built: $$out"
 
 # Include header dependencies (.d files)
