@@ -3,7 +3,7 @@ MODE ?= debug
 
 # Compiler and build settings
 CXX       = g++
-BASE_FLAGS  = -Wall -Wextra -std=c++20 -MMD -MP
+BASE_FLAGS  = -Wall -Wextra -std=c++2a -MMD -MP
 
 # Dynamic vectorization report flag (default is empty)
 #	 all, optimized, (none), missed
@@ -13,13 +13,13 @@ VEC_REPORT := "-fopt-info-vec$(REPORT_TYPE)"
 
 # Set the optimization level and flags based on the selected mode
 ifeq ($(MODE),debug)
-    CXXFLAGS = $(BASE_FLAGS) -g -O0
+    CXXFLAGS = $(BASE_FLAGS) -g -O0 -pthread
 else ifeq ($(MODE),dev)
-    CXXFLAGS = $(BASE_FLAGS) -O1
+    CXXFLAGS = $(BASE_FLAGS) -O1 -pthread
 else ifeq ($(MODE),release)
-    CXXFLAGS = $(BASE_FLAGS) -O2 -ffast-math
+    CXXFLAGS = $(BASE_FLAGS) -O2 -ffast-math -pthread
 else ifeq ($(MODE),fast)
-    CXXFLAGS = $(BASE_FLAGS) -O3 -march=native -ffast-math
+    CXXFLAGS = $(BASE_FLAGS) -O3 -march=native -ffast-math -pthread
 else
     $(error ❌ Unknown MODE: $(MODE))
 endif

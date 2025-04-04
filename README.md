@@ -285,7 +285,7 @@ Then compile the program:
 ```bash
 icc -std=c++11 -o bs1 bs1.cpp
 ```
-
+icc -std=c++17 -o assignment_a assignment_a.cpp
 To check compiler options:
 
 ```bash
@@ -306,9 +306,9 @@ make
 Else, if there are many .cpp files, each with its own main() function, use `cd` to go to the directory where `./src` folder is located, copy the custom `Makefile` there, and then run:
 
 ```bash
-make active SINGLE_SRC=src/(filename).cpp
+make active SINGLE_SRC=src/(assignment).cpp
 ```
-
+make active SINGLE_SRC=src/assignment_d.cpp
 To run, after building the program, you can execute it by running:
 
 ```bash
