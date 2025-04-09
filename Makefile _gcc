@@ -1,39 +1,25 @@
-# ================================================================
-# Makefile for Intel Compiler (icpx), with VTune integration
-# ================================================================
-
 # Build mode: choose one of [debug | dev | release | fast]
 MODE ?= debug
 
-# Intel compiler command
-CXX = icpx
+# Compiler and build settings
+CXX       = g++
+BASE_FLAGS  = -Wall -Wextra -std=c++2a -MMD -MP
 
-# Base compile flags
-# -std=c++20: modern C++ standard
-# -Wall -Wextra: warnings
-# -MMD -MP: dependency tracking
-# -g: produce debugging symbols (helpful for VTune)
-BASE_FLAGS = -std=c++20 -Wall -Wextra -MMD -MP -g
+# Dynamic vectorization report flag (default is empty)
+#	 all, optimized, (none), missed
+REPORT_TYPE := -all
 
-# Vectorization report flags
-#  This writes detailed vector info to build/project_vector_report.txt
-VEC_REPORT = -qopt-report=max -qopt-report-phase=vec -qopt-report-file=$(BUILD_DIR)/project_vector_report.txt
+VEC_REPORT := "-fopt-info-vec$(REPORT_TYPE)"
 
-# ===========================
-# Optimization by Mode
-# ===========================
+# Set the optimization level and flags based on the selected mode
 ifeq ($(MODE),debug)
-    # No optimization for debugging
-    CXXFLAGS = $(BASE_FLAGS) -O0
+    CXXFLAGS = $(BASE_FLAGS) -g -O0 -pthread
 else ifeq ($(MODE),dev)
-    # Light optimization
-    CXXFLAGS = $(BASE_FLAGS) -O1
+    CXXFLAGS = $(BASE_FLAGS) -O1 -pthread
 else ifeq ($(MODE),release)
-    # Good optimization with fast math
-    CXXFLAGS = $(BASE_FLAGS) -O2 -xHost -ffast-math
+    CXXFLAGS = $(BASE_FLAGS) -O2 -ffast-math -pthread
 else ifeq ($(MODE),fast)
-    # Aggressive optimization, host CPU, fast math
-    CXXFLAGS = $(BASE_FLAGS) -O3 -xHost -ffast-math
+    CXXFLAGS = $(BASE_FLAGS) -O3 -march=native -ffast-math -pthread
 else
     $(error ❌ Unknown MODE: $(MODE))
 endif
@@ -54,7 +40,10 @@ DEPS := $(OBJS:.o=.d)
 all: $(TARGET)
 	@echo "✅ Build complete: $(TARGET)"
 
-$(info 🛠️ Using Intel Compiler. Build mode: $(MODE))
+# Just printing info
+$(info 🛠️ Build mode: $(MODE))
+# $(info 🔍 SRCS: $(SRCS))
+# $(info 🔍 OBJS: $(OBJS))
 
 # Link object files into final executable
 $(TARGET): $(OBJS)
@@ -67,7 +56,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "🛠️ Compiling: $< → $@"
 	@mkdir -p $(BUILD_DIR)
 ifeq ($(filter $(MODE),dev release fast),$(MODE))
-	$(CXX) $(CXXFLAGS) $(VEC_REPORT) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(VEC_REPORT)=$(BUILD_DIR)/project_vector_report.txt -c $< -o $@
 else
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 endif
@@ -90,20 +79,19 @@ endif
 	 vec_report=$(BUILD_DIR)/$${name}_vector_report.txt; \
 	 out=$(BUILD_DIR)/$$name.exe; \
 	 echo "🧠 Vector report: $$vec_report"; \
-	 $(CXX) $(CXXFLAGS) -qopt-report=max -qopt-report-phase=vec -qopt-report-file=$$vec_report -c $$unix_src -o $$obj; \
+	 $(CXX) $(CXXFLAGS) "-fopt-info-vec$(REPORT_TYPE)=$$vec_report" -c $$unix_src -o $$obj; \
 	 $(CXX) $(CXXFLAGS) $$obj -o $$out; \
 	 echo "✅ Built: $$out"
 
-# Clean build artifacts
+# Include header dependencies (.d files)
+-include $(DEPS)
+
+# Clean up generated outputs
 clean:
 	rm -rf $(BUILD_DIR)
 	@echo "🧹 Cleaned build directory"
 
-# Run the final executable
 run: $(TARGET)
 	./$(TARGET)
 
-# Include dependency files
--include $(DEPS)
-
-.PHONY: all clean active vtune run
+.PHONY: all clean active

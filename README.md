@@ -4,12 +4,71 @@ Repository for the **Intro to High-Performance Computing in Finance** course.
 
 ## Overview
 
-Project setup using **g++**, **Makefile**, and **VS Code**.  
+Project setup using the **Intel C++ Compiler** (primary) and **VS Code**.  
 Supports both full-project builds and isolated file builds with smart folder mirroring.
+
+> **Note**: If you still need `g++`, see the section below on using GCC.  
+> By default, we now use Intel oneAPI compilers (`icpx`).
 
 ---
 
 ## Requirements
+
+### Intel oneAPI (Primary)
+
+1. [Intel oneAPI Base Toolkit](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.html)
+
+2. After installing, create a `.bat` file to correctly initialize the Intel + MSVC environment:
+
+   ```bat
+  @echo off
+  :: Set the Visual Studio install location
+  set "VS2022INSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"
+
+  :: FIRST: initialize Visual Studio build environment
+  call "%VS2022INSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat"
+
+  :: THEN: initialize Intel oneAPI environment
+  call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat" --force
+
+  :: Start interactive shell
+  cmd
+
+  ```
+3. Save this file as:
+   ```bash
+   %USERPROFILE%\dev-tools\intel-vs2022-env.bat
+   ```
+
+4. (Optional) Add it to your system PATH so you can call it from anywhere:
+  ```bash
+  setx PATH "%PATH%;%USERPROFILE%\dev-tools"
+  ```
+
+5. Then, launch VS Code **from any terminal**:
+  ```bash
+  intel-vs2022-env.bat
+  ```
+  Navigate to your repo folder:
+  ```bash
+  cd (your-repo-folder)
+  ```
+  Open VS Code:
+  ```bash
+  code .
+  ```
+
+6. You can verify the Intel compiler by:
+   ```bash
+   which icpx
+   icpx --version
+   ```
+
+---
+
+### GCC / MSYS2 (Optional, Secondary)
+
+If you prefer the old `g++` flow:
 
 - [MSYS2](https://www.msys2.org) with:
   ```bash
@@ -27,15 +86,89 @@ Supports both full-project builds and isolated file builds with smart folder mir
 
 - Close and reopen the MSYS2 shell to apply the PATH changes.
 
-- Open VS Code through the MSYS2 **MINGW64** shell:
+- Launch a **MSYS2 MINGW64** shell, then open VS Code through the shell:
   ```bash
   cd (your-repo-folder)
   code .
   ```
+- Switch your Makefile back to `Makefile_gcc` (archived version).
 
 ---
 
-## Build & Run Local
+
+---
+
+## Build & Run (Intel)
+
+This project uses a **new `Makefile`** configured for the Intel compiler (`icpx`).
+
+### 🔧 Full Project Build
+
+> Builds all `.cpp` under `src/` into one executable.
+
+- VS Code:
+  - `Ctrl+Shift+B` → "C/C++: Build entire project (Intel)"
+- Terminal:
+  ```bash
+  make         # defaults to MODE=debug
+  ```
+  or specify a mode:
+  ```bash
+  make MODE=fast
+  ```
+
+### ▶️ Run the Program
+
+After building:
+```bash
+make run
+```
+Runs the final executable (e.g., `build/project.exe`).
+
+Alternatively, run manually:
+```bash
+./build/project.exe
+```
+(on Windows, `build\project.exe`)
+
+### 📄 Build a Single File (Standalone)
+
+> Builds **one** file via `make active`.
+
+- VS Code:
+  - `Ctrl+Shift+B` → "C/C++: Build active file (Intel)"
+- Terminal:
+  ```bash
+  make active SINGLE_SRC=src/assignment_a.cpp
+  ```
+
+Output appears in `build/assignment_a.exe`.
+
+### 🏎️ VTune Profiling
+
+A new target `vtune` runs **Intel VTune Profiler** for hotspots analysis:
+
+```bash
+make vtune
+```
+Generates profiling results in `./vtune_results`.
+
+### Clean the Build
+
+To remove compiled files and build artifacts:
+
+```bash
+make clean
+```
+
+
+## Build & Run (GCC)
+
+This project can also be built using **GCC** with a legacy `Makefile_gcc`.
+If you ever need to revert to `g++`:
+
+1. Rename `Makefile` (Intel) to something else, e.g. `Makefile_intel`.
+2. Rename your old `Makefile_gcc` back to `Makefile`.
 
 You can build and run the project using either **VS Code tasks** or **the terminal**.
 
@@ -225,7 +358,7 @@ This allows you to use `midway` as a shortcut instead of the full hostname.
 Midway3 uses a job scheduling system, so you should not run compute-heavy code on the login node. To run your program interactively, you must request a compute node using the `sinteractive` command. For example, to request a node for 2 hour with 24 cores under the `finm32950` account:
 
 ```bash
-sinteractive --time=2:0:0 --ntasks=24 --account=finm32950
+sinteractive --time=0:30:0 --ntasks=24 --account=finm32950
 ```
 
 This opens an interactive session on a compute node where you can compile and run your code as needed. It's recommended to request short sessions to increase your chances of getting a node quickly.
@@ -235,7 +368,7 @@ More details can be found in the Midway3 user guide:
 
 
 
-### Accessing and Building the Demo Code
+### Accessing Demo Code
 
 #### Step 1: Copy and Extract the Demo Code
 
@@ -247,13 +380,13 @@ Weekly demo code is available at:
 For this example, we’ll use `L1Demo.tar`. To copy it to your home directory, run:
 
 ```bash
-cp /project2/finm32950/chanaka/L1Demo.tar .
+cp /project2/finm32950/chanaka/L4Demo.tar .
 ```
 
 Then extract it:
 
 ```bash
-tar -xvf L1Demo.tar
+tar -xvf L4Demo.tar
 ```
 
 Check the contents:
@@ -271,31 +404,32 @@ ls
 
 The main program file for this example is `bs1.cpp`.
 
+### Building the Program
 
-#### Step 2: Load Required Software (Intel Compiler)
-
-This demo uses the Intel C++ compiler (`icc`). Before compiling, load the appropriate module:
+*(Same steps as before, using Intel compilers. The only difference is that you load the `module load intel/2022.0` on Midway to get `icpc/icc`.)*
 
 ```bash
 module load intel/2022.0
 ```
 
+#### Directly (Intel Compiler)
 Then compile the program:
 
 ```bash
-icc -std=c++11 -o bs1 bs1.cpp
+icc -std=c++17 -o (file_name) (file_name).cpp
 ```
-icc -std=c++17 -o assignment_a assignment_a.cpp
-To check compiler options:
+If you are using multithreading:
+```bash
+icc -std=c++17 -o assignment_a assignment_a.cpp -lpthread
+```
 
+To check compiler options:
 ```bash
 icc -help
 ```
 
 
-#### Step 3: Alternative Build Using Makefile
-
-A `Makefile` is also provided in the `L1Demo/Profiling/` directory. Makefiles are useful for organizing builds with multiple files or flags.
+#### Indirectly (Intel Compiler via Makefile)
 
 To build the program using the Makefile, if there is only one main() function in the directory among all files, simply run the following on the directory containing the .cpp files:
 
@@ -306,9 +440,8 @@ make
 Else, if there are many .cpp files, each with its own main() function, use `cd` to go to the directory where `./src` folder is located, copy the custom `Makefile` there, and then run:
 
 ```bash
-make active SINGLE_SRC=src/(assignment).cpp
+make active SINGLE_SRC=src/assignmente.cpp
 ```
-make active SINGLE_SRC=src/assignment_d.cpp
 To run, after building the program, you can execute it by running:
 
 ```bash
@@ -342,7 +475,7 @@ g++ -O3 -march=native ./src/class_vectorization_1.cpp -o ./build/class_vectoriza
 Add `-fopt-info-vec-optimized` to see which loops were vectorized:
 
 ```bash
-g++ -O3 -march=native -fopt-info-vec-optimized ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
+icx -O3 -xHost -qopt-report=5 ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
 ```
 
 ### Save Vectorization Report to File
@@ -350,7 +483,7 @@ g++ -O3 -march=native -fopt-info-vec-optimized ./src/class_vectorization_1.cpp -
 Redirect vectorization info into a log file for later review:
 
 ```bash
-g++ -O3 -march=native -fopt-info-vec-optimized=./build/vector_report.txt ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
+icx -O3 -xHost -qopt-report=5 -qopt-report-file=./build/vector_report.txt ./src/class_vectorization_1.cpp -o ./build/class_vectorization_1.exe
 ```
 You can change the `optimized` parameter to one of the following:
 - `all` - 	Everything: successes, failures, diagnostics
@@ -392,3 +525,12 @@ This will generate the vectorization report for all files in the project.
 
 You can also run this from the VS Code build task:  
 **`Build Active File (fast)`**
+
+
+---
+
+## Further Resources
+
+- [Intel oneAPI Docs](https://www.intel.com/content/www/us/en/developer/tools/oneapi/overview.html)
+- [VTune Profiler Guide](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html)
+- [GNU Make manual](https://www.gnu.org/software/make/manual/make.html)
