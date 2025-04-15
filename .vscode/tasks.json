@@ -1,216 +1,265 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "🧹 Clean Build Directory",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "clean"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [],
-            "group": {
-                "kind": "build",
-                "isDefault": false
+  "version": "2.0.0",
+  "tasks": [
+      {
+          "label": "🧹 Clean Build Directory",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "clean"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [],
+          "group": {
+              "kind": "build",
+              "isDefault": false
+          }
+      },
+      {
+          "label": "🛠️ Build Entire Project (debug)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "all",
+              "MODE=debug"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
+              }
             }
-        },
-        {
-            "label": "🛠️ Build Entire Project (debug)",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "all",
-                "MODE=debug"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-              {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                  "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
-                  "file": 1,
-                  "line": 2,
-                  "column": 3,
-                  "severity": 4,
-                  "message": 5
-                }
+          ],
+          "group": {
+              "kind": "build",
+              "isDefault": false
+          },
+          "detail": "Builds the entire project in debug mode (-g -O0)"
+      },
+      {
+          "label": "🛠️ Build Entire Project (release)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "all",
+              "MODE=release"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
               }
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "detail": "Builds the entire project in debug mode (-g -O0)"
-        },
-        {
-            "label": "Build Entire Project (release)",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "all",
-                "MODE=release"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-              {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                  "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
-                  "file": 1,
-                  "line": 2,
-                  "column": 3,
-                  "severity": 4,
-                  "message": 5
-                }
+            }
+          ],
+          "group": {
+              "kind": "build",
+              "isDefault": false
+          },
+          "detail": "Builds the entire project in release mode (-O2)"
+      },
+      {
+          "label": "🛠️ Build Entire Project (fast)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "all",
+              "MODE=fast"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
               }
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "detail": "Builds the entire project in release mode (-O2)"
-        },
-        {
-            "label": "🛠️ Build Entire Project (fast)",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "all",
-                "MODE=fast"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-              {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                  "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
-                  "file": 1,
-                  "line": 2,
-                  "column": 3,
-                  "severity": 4,
-                  "message": 5
-                }
+            }
+          ],
+          "group": "build",
+          "detail": "Builds the project in fast mode (-O3)"
+      },
+      {
+          "label": "🛠️ Build Active File (debug)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "active",
+              "MODE=debug",
+              "SINGLE_SRC=${file}"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+              "$gcc"
+          ],
+          "group": "build",
+          "detail": "Builds the currently active .cpp file in debug mode"
+      },
+      {
+          "label": "🛠️ Build Active File (dev)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "active",
+              "MODE=dev",
+              "SINGLE_SRC=${file}"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
               }
-            ],
-            "group": "build",
-            "detail": "Builds the project in fast mode (-O3)"
-        },
-        {
-            "label": "🛠️ Build Active File (debug)",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "active",
-                "MODE=debug",
-                "SINGLE_SRC=${file}"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": "build",
-            "detail": "Builds the currently active .cpp file in debug mode"
-        },
-        {
-            "label": "🛠️ Build Active File (dev)",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "active",
-                "MODE=dev",
-                "SINGLE_SRC=${file}"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-              {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                  "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
-                  "file": 1,
-                  "line": 2,
-                  "column": 3,
-                  "severity": 4,
-                  "message": 5
-                }
+            }
+          ],
+          "group": "build",
+          "detail": "Builds the currently active .cpp file in dev mode (-O1)"
+      },
+      {
+          "label": "🛠️ Build Active File (release)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "active",
+              "MODE=release",
+              "SINGLE_SRC=${file}"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
               }
-            ],
-            "group": "build",
-            "detail": "Builds the currently active .cpp file in dev mode (-O1)"
-        },
-        {
-            "label": "🛠️ Build Active File (release)",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "active",
-                "MODE=release",
-                "SINGLE_SRC=${file}"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-              {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                  "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
-                  "file": 1,
-                  "line": 2,
-                  "column": 3,
-                  "severity": 4,
-                  "message": 5
-                }
+            }
+          ],
+          "group": "build",
+          "detail": "Builds the currently active .cpp file in release mode (-O2)"
+      },
+      {
+          "label": "🛠️ Build Active File (fast)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "active",
+              "MODE=fast",
+              "SINGLE_SRC=${file}"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
               }
-            ],
-            "group": "build",
-            "detail": "Builds the currently active .cpp file in release mode (-O2)"
+            }
+          ],
+          "group": "build",
+          "detail": "Builds the currently active .cpp file in fast mode (-O3)"
+      }, 
+      {
+        "label": "🩺 Profile Active File (Line Profiler)",
+        "command": "conda",
+        "args": [
+          "run",
+          "-n",
+          "data_analysis",
+          "kernprof",
+          "-l",
+          "-v",
+          "${file}"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
         },
-        {
-            "label": "🛠️ Build Active File (fast)",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "active",
-                "MODE=fast",
-                "SINGLE_SRC=${file}"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-              {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                  "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
-                  "file": 1,
-                  "line": 2,
-                  "column": 3,
-                  "severity": 4,
-                  "message": 5
-                }
-              }
-            ],
-            "group": "build",
-            "detail": "Builds the currently active .cpp file in fast mode (-O3)"
-        },  
-    ],
+        "problemMatcher": [],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "🩺 Profile Active File (cProfile)",
+        "type": "shell",
+        "command": "conda",
+        "args": [
+          "run",
+          "-n",
+          "data_analysis",
+          "python",
+          "-m",
+          "cProfile",
+          "-s",
+          "cumulative",
+          "${file}"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      }
+  ],
 }

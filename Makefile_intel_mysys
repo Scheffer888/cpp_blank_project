@@ -1,0 +1,106 @@
+# ================================================================
+# Makefile for Intel Compiler (icpx), with VTune integration
+# ================================================================
+
+# Build mode: choose one of [debug | dev | release | fast]
+MODE ?= debug
+
+# Intel compiler command
+CXX = icpx
+
+# Base compile flags
+# -std=c++20: modern C++ standard
+# -Wall -Wextra: warnings
+# -MMD -MP: dependency tracking
+# -g: produce debugging symbols (helpful for VTune)
+# -qopenmp: enable OpenMP
+# -qtbb: enable Intel TBB
+BASE_FLAGS = -std=c++20 -Wall -Wextra -MMD -MP -g -qopenmp -qtbb
+
+# Vectorization report flags
+#  This writes detailed vector info to build/project_vector_report.txt
+VEC_REPORT = -qopt-report=max -qopt-report-phase=vec -qopt-report-file=$(BUILD_DIR)/project_vector_report.txt
+
+# ===========================
+# Optimization by Mode
+# ===========================
+ifeq ($(MODE),debug)
+    # No optimization for debugging
+    CXXFLAGS = $(BASE_FLAGS) -O0 
+else ifeq ($(MODE),dev)
+    # Light optimization
+    CXXFLAGS = $(BASE_FLAGS) -O1
+else ifeq ($(MODE),release)
+    # Good optimization with fast math
+    CXXFLAGS = $(BASE_FLAGS) -O2 -axCORE-AVX2 -ffast-math
+else ifeq ($(MODE),fast)
+    # Aggressive optimization, host CPU, fast math
+    CXXFLAGS = $(BASE_FLAGS) -O3 -xHost -ffast-math
+else
+    $(error ❌ Unknown MODE: $(MODE))
+endif
+
+# Directories
+SRC_DIR   = src
+BUILD_DIR = build
+
+# Executable target
+TARGET    = $(BUILD_DIR)/project.exe
+
+# Source and Object Files
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+DEPS := $(OBJS:.o=.d)
+
+# Default rule: build entire project
+all: $(TARGET)
+	@echo "✅ Build complete: $(TARGET)"
+
+$(info 🛠️ Using Intel Compiler. Build mode: $(MODE))
+
+# Link object files into final executable
+$(TARGET): $(OBJS)
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	@echo "🔗 Linked into: $@"
+
+# Compile each .cpp → .o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@echo "🛠️ Compiling: $< → $@"
+	@mkdir -p $(BUILD_DIR)
+ifeq ($(filter $(MODE),dev release fast),$(MODE))
+	$(CXX) $(CXXFLAGS) $(VEC_REPORT) -c $< -o $@
+else
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+endif
+
+# Single-file build target
+active:
+ifndef SINGLE_SRC
+	$(error ❌ SINGLE_SRC not provided. Use: make active SINGLE_SRC=path/to/file.cpp)
+endif
+	@mkdir -p $(BUILD_DIR)
+	@echo "📄 Compiling single file: $(SINGLE_SRC)"
+	 filename=$$(basename $$unix_src); \
+	 name=$${filename%.*}; \
+	 obj=$(BUILD_DIR)/$$name.o; \
+	 vec_report=$(BUILD_DIR)/$${name}_vector_report.txt; \
+	 out=$(BUILD_DIR)/$$name.exe; \
+	 echo "🧠 Vector report: $$vec_report"; \
+	 $(CXX) $(CXXFLAGS) -qopt-report=max -qopt-report-phase=vec -qopt-report-file=$$vec_report -c $$unix_src -o $$obj; \
+	 $(CXX) $(CXXFLAGS) $$obj -o $$out; \
+	 echo "✅ Built: $$out"
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	@echo "🧹 Cleaned build directory"
+
+# Run the final executable
+run: $(TARGET)
+	./$(TARGET)
+
+# Include dependency files
+-include $(DEPS)
+
+.PHONY: all clean active run
