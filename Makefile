@@ -1,14 +1,22 @@
 # ================================================================
-# Makefile for Intel Compiler (icpx) on Windows
+# Intel oneAPI + CUDA Makefile (Windows, icpx host, nvcc device)
+# ================================================================
+#   • MODE ?= debug | dev | release | fast
+#   • CUDA=true  …build .cu files and link with cudart
+#   • SINGLE_SRC=path/to/foo.{cpp,cu} + active target unchanged
 # ================================================================
 
-# Build mode: choose one of [debug | dev | release | fast]
+########################## user‑tunable ###########################
 MODE ?= debug
+CUDA_DEFAULT ?= false
+USE_CUDA := $(or $(CUDA_DEFAULT),$(USE_CUDA))
+CUDA_ARCH ?= sm_60
 
-# Intel compiler command
-CXX = icpx
+# ---------- tools ----------
+CXX     = icpx # Intel compiler command
+NVCC    = nvcc
 
-# Paths for Intel MKL (assuming oneAPI environment is set)
+# ---------- oneAPI paths ----------
 COMPILER_LIB_DIR ?= C:/PROGRA~2/Intel/oneAPI/compiler/latest/lib
 MKLROOT          ?= C:/PROGRA~2/Intel/oneAPI/mkl/latest
 
@@ -21,7 +29,34 @@ MKL_LIBS = \
     "$(MKLROOT)/lib/mkl_core_dll.lib"          \
     "$(COMPILER_LIB_DIR)/libiomp5md.lib"
 
-# Base compile flags
+# ---------- project layout ----------
+SRC_DIR   = src
+BUILD_DIR = build
+TARGET    = $(BUILD_DIR)/project.exe
+
+# ---------- source -> object lists ----------
+CPP_SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+CPP_OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(CPP_SRCS))
+
+ifeq ($(USE_CUDA),true)                     # only gather .cu files when wanted
+CUDA_SRCS := $(wildcard $(SRC_DIR)/*.cu)
+CUDA_OBJS := $(patsubst $(SRC_DIR)/%.cu,$(BUILD_DIR)/%.o,$(CUDA_SRCS))
+else
+CUDA_SRCS :=
+CUDA_OBJS :=
+endif
+
+OBJS := $(CPP_OBJS) $(CUDA_OBJS)
+DEPS := $(OBJS:.o=.d)
+
+# Single‐file naming logic
+SINGLE_BASE   := $(basename $(notdir $(SINGLE_SRC)))
+SINGLE_OBJ    := $(BUILD_DIR)/$(SINGLE_BASE).o
+SINGLE_EXE    := $(BUILD_DIR)/$(SINGLE_BASE).exe
+SINGLE_VREPORT:= $(BUILD_DIR)/$(SINGLE_BASE)_vector_report.txt
+
+
+# ---------- base host flags ----------
 # -std=c++20: modern C++ standard
 # -Wall -Wextra: warnings
 # -MMD -MP: dependency tracking
@@ -30,86 +65,107 @@ MKL_LIBS = \
 # -qtbb: enable Intel TBB
 BASE_FLAGS = -std=c++20 -Wall -Wextra -MMD -MP -g -qopenmp -qtbb $(MKL_INCLUDE)
 
-# Vectorization report flags
-VEC_REPORT = -qopt-report=max -qopt-report-phase=vec -qopt-report-file=$(BUILD_DIR)/project_vector_report.txt
-
-# ===========================
-# Optimization by Mode
-# ===========================
+# ---------- optimization by mode ----------
 ifeq ($(MODE),debug)
-    CXXFLAGS = $(BASE_FLAGS) -O0
+  HOST_OPT   = -O0
+  NVCC_OPT = -O0 -G
 else ifeq ($(MODE),dev)
-    CXXFLAGS = $(BASE_FLAGS) -O1
+  HOST_OPT   = -O1
+  NVCC_OPT = -O1
 else ifeq ($(MODE),release)
-    CXXFLAGS = $(BASE_FLAGS) -O2 -axCORE-AVX2 -ffast-math
+  HOST_OPT   = -O2 -axCORE-AVX2 -ffast-math
+  NVCC_OPT = -O3
 else ifeq ($(MODE),fast)
-	CXXFLAGS = $(BASE_FLAGS) -O3 -xHost -ffast-math
+  HOST_OPT   = -O3 -xHost -ffast-math
+  NVCC_OPT = -O3 --use_fast_math
 else
-    $(error Unknown MODE: $(MODE))
+  $(error Unknown MODE: $(MODE))
 endif
 
-# Directories
-SRC_DIR   = src
-BUILD_DIR = build
+HOST_FLAGS  = $(BASE_FLAGS) $(HOST_OPT)
 
-# Main target
-TARGET    = $(BUILD_DIR)/project.exe
+# Vectorization report flags only for dev+release+fast
+VEC_REPORT = -qopt-report=max -qopt-report-phase=vec -qopt-report-file=$(SINGLE_VREPORT)
 
-# Source/Object Files
-SRCS := $(wildcard $(SRC_DIR)/*.cpp)
-OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
-DEPS := $(OBJS:.o=.d)
+# ---------- NVCC flags (only used when CUDA=true) ----------
+NVCC_INCLUDE   := /I$(MKLROOT_SHORT)/include
 
-# ==========================
-# Single‐file naming logic
-# ==========================
+NVCC_HOST_FLAGS := \
+    /std:c++20 \
+    /EHsc \
+	/Zi \
+    /openmp \
+    /MD \
+	/nologo \
+    $(NVCC_INCLUDE)
 
-# Given SINGLE_SRC=path/to/foo.cpp, 
-#   SINGLE_BASE = foo
-#   SINGLE_OBJ  = build/foo.o
-#   SINGLE_EXE  = build/foo.exe
-#   SINGLE_VRPT = build/foo_vector_report.txt
-SINGLE_BASE   := $(basename $(notdir $(SINGLE_SRC)))
-SINGLE_OBJ    := $(BUILD_DIR)/$(SINGLE_BASE).o
-SINGLE_EXE    := $(BUILD_DIR)/$(SINGLE_BASE).exe
-SINGLE_VREPORT:= $(BUILD_DIR)/$(SINGLE_BASE)_vector_report.txt
+NVCCFLAGS = \
+  -std=c++20 \
+  -arch=$(CUDA_ARCH) \
+  $(NVCC_OPT) \
+  $(patsubst %,-Xcompiler %,$(NVCC_HOST_FLAGS))
+
 
 # ==========================
 # Rules
 # ==========================
 all: $(TARGET)
-	@echo "Build complete: $(TARGET)"
-
-$(info Using Intel Compiler. Build mode: $(MODE))
-
-# Link object files into final .exe
+	@echo "Compiling entire project: MODE=$(MODE), USE_CUDA=$(USE_CUDA)"
+	
+# ----------- link object files into final .exe --------------
+# If USE_CUDA is on: link via nvcc; else link via icpx (original path)
+ifeq ($(USE_CUDA),true)
 $(TARGET): $(OBJS)
 	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
-	@$(CXX) $(CXXFLAGS) $^ -o $@ $(MKL_LIBS)
-	@echo "Linked into: $@"
-
-# Compile each .cpp → .o
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "Compiling: $< --> $@"
-	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
-ifeq ($(filter $(MODE),dev release fast),$(MODE))
-	@$(CXX) $(CXXFLAGS) $(VEC_REPORT) -c $< -o $@
+	@echo "Linking with nvcc (cudart + MKL/TBB)…"
+	@$(NVCC) $^ -o $@ $(MKL_LIBS) -lcudart
 else
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TARGET): $(OBJS)
+	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
+	@echo "Linking with icpx…"
+	@$(CXX) $(HOST_FLAGS) $^ -o $@ $(MKL_LIBS)
 endif
 
+# ---------- host compilation (.cpp → .o)--------------
+# Compile each .cpp → .o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
+	@echo "[HOST] $<"
+ifeq ($(filter $(MODE),dev release fast),$(MODE))
+	@$(CXX) $(HOST_FLAGS) $(VEC_REPORT) -c $< -o $@
+else
+	@$(CXX) $(HOST_FLAGS) -c $< -o $@
+endif
+
+# ---------- device compilation (.cu → .o) --------------
+ifeq ($(USE_CUDA),true)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cu
+	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
+	@echo "[USE_CUDA] $<"
+	@$(NVCC) $(NVCCFLAGS) -dc $< -o $@
+endif
+
+# ==========================
 # Single-file build target
+# ==========================
 active:
+	@echo "Compiling single file. MODE=$(MODE), USE_CUDA=$(USE_CUDA)"
 ifndef SINGLE_SRC
 	$(error SINGLE_SRC not provided. Use: make active SINGLE_SRC=path/to/file.cpp)
 endif
 	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
-	@echo "Compiling single file: $(SINGLE_SRC)"
-	@$(CXX) $(CXXFLAGS) -qopt-report=max -qopt-report-phase=vec \
-	      -qopt-report-file=$(SINGLE_VREPORT) \
-	      -c $(SINGLE_SRC) -o $(SINGLE_OBJ)
-	@$(CXX) $(CXXFLAGS) $(SINGLE_OBJ) -o $(SINGLE_EXE) $(MKL_LIBS)
+ifeq ($(USE_CUDA),true)
+	$(NVCC) $(NVCCFLAGS) -o $(SINGLE_EXE) $(SINGLE_SRC) $(MKL_LIBS) -lcudart 1>nul
 	@echo "Built: $(SINGLE_EXE)"
+else
+ifeq ($(filter $(MODE),dev release fast),$(MODE))
+	$(CXX) $(HOST_FLAGS) $(VEC_REPORT) -c $(SINGLE_SRC) -o $(SINGLE_OBJ)
+else
+	$(CXX) $(HOST_FLAGS) -c $(SINGLE_SRC) -o $(SINGLE_OBJ)
+endif
+	$(CXX) $(HOST_FLAGS) $(SINGLE_OBJ) -o $(SINGLE_EXE) $(MKL_LIBS)
+	@echo "Built: $(SINGLE_EXE)"
+endif
 
 # Clean build artifacts
 clean:

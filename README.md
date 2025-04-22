@@ -2,9 +2,55 @@ _Author: Eduardo B. Scheffer_
 
 # Intro to High-Performance Computing in Finance
 
-Repository for the **Intro to High-Performance Computing in Finance** course.
+## 📚 Table of Contents
 
-## Overview
+1. [Overview](#1-overview)  
+2. [Code Conventions](#2-code-conventions)  
+3. [Notes](#3-notes)  
+4. [Requirements](#4-requirements)  
+    - [4.1. Intel oneAPI (Primary)](#41-intel-oneapi-primary)  
+      - [4.1.1. Download and Install Make](#411-download-and-install-make)  
+      - [4.1.2. Install Intel oneAPI](#412-install-intel-oneapi)  
+      - [4.1.3. Open VS Code](#413-open-vs-code)  
+    - [4.2. GCC / MSYS2 (Optional, Secondary)](#42-gcc--msys2-optional-secondary)  
+5. [Build & Run (Intel)](#5-build--run-intel)  
+    - [5.1. Full Project Build](#51-full-project-build)  
+    - [5.2. Single File Build](#52-single-file-build)  
+    - [5.3. Run the Program](#53-run-the-program)  
+    - [5.4. Clean the Build](#54-clean-the-build)  
+6. [Build and Run on Midway3](#6-buld-and-run-on-midway3)  
+    - [6.1. Prerequisites](#61-prerequisites)  
+    - [6.2. Steps to Connect to Midway3](#62-steps-to-connect-to-midway3)  
+    - [6.3. Accessing Demo Code](#63-accessing-demo-code)  
+    - [6.4. Requesting a Compute Node](#64-requesting-a-compute-node)  
+    - [6.5. Building a C++ Program](#65-building-a-c-program)  
+    - [6.6. Compile a C++ Program](#66-compile-a-c-program)  
+    - [6.7. Running a C++ Program](#67-running-a-c-program)  
+    - [6.8. Running a Python Program](#68-running-a-python-program)  
+    - [6.9. Export Zip File from Midway3](#69-export-zip-file-from-midway3)  
+7. [Using Cython](#7-using-cython)  
+    - [7.1. Variables and Functions](#71-variables-and-functions)  
+    - [7.2. Steps to use Cython](#72-steps-to-use-cython)  
+    - [7.3. Compiling and Running Cython Code](#73-compiling-and-running-cython-code)  
+    - [7.4. `setup.py` for Cython](#74-setuppy-for-cython)  
+8. [CUDA](#9-CUDA)
+    - [8.1. CUDA on Midway3](#91-cuda-on-midway3)  
+    - [8.2. CUDA on Windows](#92-cuda-on-windows)  
+    - [8.3. Check Availability](#93-check-availability)  
+    - [8.4. Compile CUDA Code](#94-compile-cuda-code)  
+    - [8.5. Run CUDA Code](#95-run-cuda-code)
+9. [Profiling Code](#8-profiling-code)  
+    - [9.1. VTune (C++) on Midway3](#81-vtune-c-on-midway3)  
+    - [9.2. VTune (C++) on Windows](#82-vtune-c-on-windows)  
+    - [9.3. CProfile (Python)](#83-cprofile-python)  
+    - [9.4. Line Profiler (Python)](#84-line-profiler-python)  
+   - [9.5. Nsight (CUDA)](#85-nsight-cuda)
+10. [Compressing Files](#10-compressing-files)  
+11. [Further Resources](#11-further-resources)  
+
+---
+
+## 1. Overview
 
 Project setup using the **Intel C++ Compiler** (primary) and **VS Code**.  
 Supports both full-project builds and isolated file builds with smart folder mirroring.
@@ -12,8 +58,9 @@ Supports both full-project builds and isolated file builds with smart folder mir
 > **Note**: If you still need `g++`, see the section below on using GCC.  
 > By default, we now use Intel oneAPI compilers (`icpx`).
 
+---
 
-## Code Conventions
+## 2. Code Conventions
 
 | Element       | Style                  |
 |---------------|------------------------|
@@ -24,8 +71,9 @@ Supports both full-project builds and isolated file builds with smart folder mir
 | **Struct**    | `MyStruct`             |
 | **Typedef**   | `Alias_t`              |
 
+---
 
-## Notes
+## 3. Notes
 
 - Object files, executables, and dependency files are placed in `build/`
 - Header dependencies are automatically tracked via `.d` files (`-MMD -MP`)
@@ -34,11 +82,11 @@ Supports both full-project builds and isolated file builds with smart folder mir
 
 ---
 
-## Requirements
+## 4. Requirements
 
-### Intel oneAPI (Primary)
+### 4.1. Intel oneAPI (Primary)
 
-#### Download and Install Make
+#### 4.1.1. Download and Install Make
 
 1. Download [Windows Native Make](https://sourceforge.net/projects/ezwinports/files/): `make-4.4.1-without-guile-w32-bin.zip` 
 
@@ -54,7 +102,7 @@ Supports both full-project builds and isolated file builds with smart folder mir
 
 4. Make sure there is no other folder for `make` in your PATH (For example, the if you previously installed `make` using MSYS, these variables might cause problems when compiling with Intel: `C:\msys64\mingw64\bin` or `C:\msys64\usr\bin`)
 
-#### Install Intel oneAPI
+#### 4.1.2. Install Intel oneAPI
 
 1. Install [Intel oneAPI Base Toolkit](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.html)
 
@@ -79,7 +127,7 @@ Supports both full-project builds and isolated file builds with smart folder mir
   %USERPROFILE%\dev-tools\intel-vs2022-env.bat
   ```
 
-#### Open VS Code
+#### 4.1.3. Open VS Code
 5. Then, launch VS Code **from any terminal**, click on:
   ```bash
   intel-vs2022-env.bat
@@ -101,7 +149,7 @@ Supports both full-project builds and isolated file builds with smart folder mir
 
 ---
 
-### GCC / MSYS2 (Optional, Secondary)
+### 4.2. GCC / MSYS2 (Optional, Secondary)
 
 If you prefer using MSYS with `g++`:
 
@@ -136,7 +184,7 @@ If you prefer using MSYS with `g++`:
 
 ---
 
-## Build & Run (Intel)
+## 5. Build & Run (Intel)
 
 This project uses a **`Makefile`** configured for the Intel compiler (`icpx`).
 
@@ -148,9 +196,9 @@ The Makefile supports multiple build modes, depending on the level of vectorizat
 
 The Makefile also builds in C++20 and support OpenMP, TBB and MKL.
 
-### 🔧 Full Project Build
+### 5.1. Full Project Build
 
-> Builds all `.cpp` under `src/` into one executable.
+Builds all `.cpp` under `src/` into one executable.
 
 - VS Code: (either task)
   - `Ctrl+Shift+B` → "🛠️ Build Entire Project (debug)"
@@ -162,9 +210,9 @@ The Makefile also builds in C++20 and support OpenMP, TBB and MKL.
   make all MODE=debug
   make all MODE=release
   make all MODE=fast
-```
+  ```
 
-### Single File Build
+### 5.2. Single File Build
 
 > Builds **one** file via `make active`.
 
@@ -183,7 +231,7 @@ The Makefile also builds in C++20 and support OpenMP, TBB and MKL.
     ```
 Output appears in `build/assignment_a.exe`.
 
-### ▶️ Run the Program
+### 5.3. Run the Program
 
 After building, the following command runs the final executable.
 
@@ -197,7 +245,7 @@ If the final executable is `project.exe`, you can also run by:
 make run
 ```
 
-### Clean the Build
+### 5.4. Clean the Build
 
 To remove compiled files and build artifacts:
 
@@ -207,9 +255,7 @@ make clean
 
 ---
 
-## Buld and Run on Midway3
-
-### 🔌 Connect to Midway via SSH in VS Code
+## 6. Buld and Run on Midway3
 
 Midway is the resource from Research Computing Center (RCC) at the University of Chicago.
 
@@ -218,11 +264,12 @@ The figure below shows a schematic diagram of Midway:
 ![Midway3 Schematic Diagram](./assets/midway3_rcc.png)
 
 
-#### Prerequisites
+### 6.1. Prerequisites
 - VS Code installed
 - Access to Midway (UChicago RCC)
 - Duo 2FA set up for your RCC account
 
+### 6.2. Steps to Connect to Midway3
 
 #### Step 1: Install the Remote Development Extension Pack
 
@@ -279,9 +326,8 @@ This allows you to use `midway` as a shortcut instead of the full hostname.
 #### Notes
 - You will be asked for your password and Duo authentication **every time you connect**
 
----
 
-### Accessing Demo Code
+### 6.3. Accessing Demo Code
 
 #### Step 1: Copy and Extract the Demo Code
 
@@ -309,9 +355,8 @@ cd L1Demo/Profiling
 ls
 ```
 
----
 
-### Requesting a Compute Node
+### 6.4. Requesting a Compute Node
 
 Midway3 uses a job scheduling system, so you should not run compute-heavy code on the login node. To run your program interactively, you must request a compute node using the `sinteractive` command. For example, to request a node for 30 minutes with 24 cores under the `finm32950` account:
 
@@ -332,7 +377,7 @@ More details can be found in the Midway3 user guide:
 
 ---
 
-### Building a C++ Program
+### 6.5. Building a C++ Program
 
 1. Load the Intel Compiler and, if using, the MKL module:
 ```bash
@@ -343,8 +388,9 @@ module load mkl/latest
 
 2. Navigate to the current folder.
 
-### Compile a C++ Program
-#### Directly (Intel Compiler via Terminal)
+### 6.6. Compile a C++ Program
+
+#### 6.6.1 Build Directly (Intel Compiler via Terminal)
 ```bash
 icc -std=c++17 -o (file_name) (file_name).cpp
 ```
@@ -378,21 +424,19 @@ To check compiler options:
 icc -help
 ```
 
-#### Indirectly (Intel Compiler via Makefile)
+#### 6.6.2 Build Indirectly (Intel Compiler via Makefile)
 
 To build the program using the Makefile, you can follow the same steps as explained previously, as long as the directory structure is the same and you have the same Makefile in the Midway3 directory.
 
----
 
-### Running a C++ Program
+### 6.7. Running a C++ Program
 1. After compiling, run the program:
 ```bash
 ./assignment_1.exe
 ```
 
----
 
-### Running a Python Program
+### 6.8. Running a Python Program
 
 1. Before the first time after login, load the Python module:
 
@@ -405,9 +449,7 @@ module load python
 python3 your_script.py
 ```
 
----
-
-### Export Zip File from Midway3
+### 6.9. Export Zip File from Midway3
 ```bash
 tar -czvf folder_name.tar.gz file_name_1.cpp file_name_1.exe file_name_2.cpp file_name_2.exe README.md
 ```
@@ -418,7 +460,7 @@ tar -czvf Assignment2-eduardoscheffer.tar.gz *
 
 ---
 
-## Using Cython
+## 7. Using Cython
 
 - Cython is a superset of the Python language that additionally supports calling C functions and declaring C types on variables and class attributes.
 - It provides C-Extensions for Python: to use the compiler to generate efficient C code from Cython code, which can be used in regular Python programs.
@@ -426,7 +468,7 @@ tar -czvf Assignment2-eduardoscheffer.tar.gz *
 
 **Documentation**: [Cython Docs](https://cython.readthedocs.io/en/latest/index.html)
 
-#### Variables and Functions:
+#### 7.1. Variables and Functions:
 
 - Cython supports all C data types:
   - char, short, int, long, float, double
@@ -453,13 +495,61 @@ tar -czvf Assignment2-eduardoscheffer.tar.gz *
 - Only Python functions can be called from outside the module by interpreted Python code.
   - Any functions that you want to “export” from your Cython module must be declared as Python functions using def.
 
-### Steps to use Cython
+### 7.2. Steps to use Cython
 
 1. Write Python code in a .py file (as usual).
 2. Create a `.pyx` file with the same name, and add Cython code.
 3. Create a `setup.py` [script](https://pythonhosted.org/an_example_pypi_project/setuptools.html) to compile the Cython code using C/C++ compiler.
 
-#### Example of setup.py for Cython
+
+### 7.3. Compiling and Running Cython Code
+
+#### Step 1. Activate Conda environment:
+```bash
+conda activate your_env_name
+```
+
+#### Step 2. To compile the Cython code, run:
+
+Cython uses the standard MSVC compiler to compile the code. To compile the code, run the following command in the terminal:
+
+```bash
+python setup.py build_ext --inplace
+```
+
+Alternatively, if you want to save the compiled files in a different folder, you can adjust the `setup.py` (see code below) and run:
+
+```bash
+python setup.py build_ext --build-lib build
+```
+
+#### Step 3. Import the Cython module in your Python code:
+
+After compiling the Cython file (which generates an intermediate C file and a file with `.pyd` extension), you can import the module in your main `.py` script.
+```python
+import script_name
+```
+
+Or, if you generated the build in a different folder:
+```python
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "build"))
+
+import julia_calc
+```
+
+#### Step 4. Running the Python program:
+After compiling the Cython code, run the Python program normally (usually within a Conda environment):
+
+```bash
+python src/your_script.py
+```
+
+
+### 7.4 setup.py for Cython
+
+#### 7.4.1. Simple example for building in the same folder as the source code:
 ```python
 from setuptools import Extension, setup
 from Cython.Build import cythonize
@@ -475,23 +565,7 @@ setup(
 )
 ```
 
-For more info, check the [User Guide](https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html#compilation) and [Setup scripts](https://docs.python.org/3.11/distutils/setupscript.html).
-
----
-
-### Compiling Cython Code
-
-Activate Conda environment:
-```bash
-conda activate your_env_name
-```
-
-To compile the Cython code, run:
-```bash
-python setup.py build_ext --inplace
-```
-
-Altenrnatively, if you want to save the compiled files in a different folder, you can change the `setup.py` file to:
+#### 7.4.2. Example for building in a different folder:
 ```python
 from setuptools import Extension, setup
 from Cython.Build import cythonize
@@ -504,69 +578,122 @@ BUILD_DIR = "build"
 
 # Make sure the build directory exists
 os.makedirs(BUILD_DIR, exist_ok=True)
+extra_compile_args = ['-fopenmp']
+extra_link_args = ['-lgomp']
 
 extensions = [
     Extension(
         name="julia_calc",
         sources=[os.path.join(SRC_DIR, "julia_calc.pyx")],
                                include_dirs=[numpy.get_include()],
-                               extra_compile_args=['-fopenmp'],
-                               extra_link_args=['-lgomp']
+                               extra_compile_args=extra_compile_args,
+                               extra_link_args=extra_link_args
     )
 ]
-
 setup(
     name="Julia with Cython 1",
-    ext_modules=cythonize(extensions, build_dir=BUILD_DIR)
+    ext_modules=cythonize(extensions, build_dir=BUILD_DIR, compiler_directives={"language_level": "3"})
 )
-
-```
-And compile with:
-```bash
-python setup.py build_ext --build-lib build
 ```
 
-This step creates an intermediate C file and a file with pyd extension. 
-After compiling the Cython file, we can use it in a regular Python script by importing the compiled module in your Python code:
+For additional flags, check the section below.
+
+#### 7.4.3. Additional flags for Intel Compiler
 
 ```python
-import script_name
+MKLROOT = r"C:/PROGRA~2/Intel/oneAPI/mkl/latest"
+COMPILER_LIB_DIR = r"C:/PROGRA~2/Intel/oneAPI/compiler/latest/lib"
+
+MKL_INCLUDE = os.path.join(MKLROOT, "include")
+MKL_LIBS = [
+    os.path.join(MKLROOT, "lib", "mkl_intel_lp64_dll.lib"),
+    os.path.join(MKLROOT, "lib", "mkl_tbb_thread_dll.lib"),
+    os.path.join(MKLROOT, "lib", "mkl_core_dll.lib"),
+    os.path.join(COMPILER_LIB_DIR, "libiomp5md.lib"),
+]
+
+# --------------- MSVC Flags ---------------
+# /std:c++20  : C++20
+# /EHsc       : Enable C++ exceptions (needed often with C++ and MSVC)
+# /Zi         : Debug symbols
+# /O2         : Enable speed optimizations
+# /fp:fast    : Fast floating-point optimizations
+# /arch:AVX2  : Enable AVX2 instructions
+# /openmp     : Enable OpenMP
+# /MD         : Link against the DLL run-time
+extra_compile_args = [
+    "/std:c++20",
+    "/EHsc",
+    "/Zi",
+    "/O2",
+    "/fp:fast",
+    "/arch:AVX2",
+    '/openmp',
+    f"/I{MKL_INCLUDE}",  # /I for include directory
+]
+
+# These .lib files get passed to the linker; /openmp to enable OpenMP linking
+extra_link_args = MKL_LIBS + [
+]
 ```
 
-However, if you saved the compiled files in a different folder, you need to add the path to the `sys.path`:
-
-```python
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "build"))
-
-import julia_calc
-```
+For more info, check the [User Guide](https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html#compilation) and [Setup scripts](https://docs.python.org/3.11/distutils/setupscript.html).
 
 ---
-### Running Python with Cython
 
-1. After compiling the Cython code, run the Python program (usually within a Conda environment):
+## 8. CUDA
 
+### 8.1. CUDA on Midway3
+
+To run CUDA on Midway3, you need to request a GPU compute node:
 ```bash
-python src/your_script.py
+sinteractive --partition=gpu --gres=gpu:1 --time=0:15:00 --account=finm32950
 ```
-
----
-
-### Compressing Files
-
-From the project root folder, run:
+Then, load the CUDA module:
 ```bash
-mkdir _zip
-powershell Compress-Archive -Path setup.py,src/julia.py,src/julia_calc.pyx -DestinationPath _zip/assignment_g-eduardoscheffer.zip
+module load cuda/11.7
 ```
 
----
+### 8.2. CUDA on Windows
 
-## Profiling Code
+#### 8.1.2. Install CUDA Toolkit
+To install CUDA toolkit on Windows/Linux, follow the instructions on the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) page.
 
-### VTune (C++) on Midway3
+### 8.3. Check Availability
+
+To check if CUDA is available, run:
+```bash
+nvcc --version
+```
+
+Also, check GPU availability:
+```bash
+nvidia-smi
+```
+
+### 8.4. Compile CUDA Code
+
+To compile CUDA code, use the `nvcc` compiler. For example:
+```bash
+nvcc my_program.cu -o my_program
+```
+
+
+### 8.5. Run CUDA Code
+
+To run the compiled CUDA program, use (in Linux):
+```bash
+./my_program
+```
+or (in Windows):
+```bash
+my_program.exe
+```
+
+
+## 9. Profiling Code
+
+### 9.1. VTune (C++) on Midway3
 
 1. Go to the folder where your executable is located:
 ```bash
@@ -578,7 +705,9 @@ cd Profiling/
 ./run_vtune
 ```
 
-### VTune (C++) on Windows
+---
+
+### 9.2. VTune (C++) on Windows
 
 If you are analyzing a C++ program that uses MKL, you should use the Makefile command:
 ```bash
@@ -591,7 +720,7 @@ Once open, select the project and load the .exe.
 
 ---
 
-### CProfile (Python)
+### 9.3. CProfile (Python)
 
 Shows total time and cumulative time for each function, as well as number of calls. It helps identify bottlenecks in Python code.
 
@@ -605,8 +734,9 @@ To profile a Python program using CProfile, you can run via:
 
 One drawback of the CProfile is that it does not khow the most expensive lines. For that, we need Line Profiler.
 
+---
 
-### Line Profiler (Python)
+### 9.4. Line Profiler (Python)
 
 The line profiler shows how much time spend by each line of code. It **very useful to identify expensive lines of code** in a CPU-bound program.
 
@@ -631,9 +761,32 @@ kernprof -l -v src/sample_program.py
 - VS Code task:
   - `Ctrl+Shift+P` → "Tasks: Run Task" → "🩺 Profile Active File (cProfile)"
 
+---
 
-## Further Resources
+
+### 9.5 Nsight (CUDA)
+
+Check the [NVIDIA Nsight](https://developer.nvidia.com/nsight-compute) documentation for more details.
+
+## 10. Compressing Files
+
+From the project root folder, run:
+```bash
+mkdir _zip
+powershell Compress-Archive -Path setup.py,src/julia.py,src/julia_calc.pyx -DestinationPath _zip/assignment_g-eduardoscheffer.zip
+```
+If in Linux, using `tar`:
+```bash
+tar -czvf ../assignment3_contents.tar.gz src build README.md
+---
+
+## 11. Further Resources
 
 - [Intel oneAPI Docs](https://www.intel.com/content/www/us/en/developer/tools/oneapi/overview.html)
 - [VTune Profiler Guide](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html)
 - [GNU Make manual](https://www.gnu.org/software/make/manual/make.html)
+- [CUDA Programming Guide](https://docs.nvidia.com/CUDA/CUDA-c-programming-guide/index.html)
+- [CUDA Math Functions](http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#mathematical-functions-appendix)
+- [Intel MKL](https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2024-1/overview.html)
+- [Intel TBB](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb-documentation.html)
+

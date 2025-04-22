@@ -18,7 +18,7 @@
           }
       },
       {
-          "label": "🛠️ Build Entire Project (debug)",
+          "label": "⚙️ Build Entire Project (debug)",
           "type": "shell",
           "command": "make",
           "args": [
@@ -49,7 +49,7 @@
           "detail": "Builds the entire project in debug mode (-g -O0)"
       },
       {
-          "label": "🛠️ Build Entire Project (release)",
+          "label": "⚙️ Build Entire Project (release)",
           "type": "shell",
           "command": "make",
           "args": [
@@ -80,12 +80,73 @@
           "detail": "Builds the entire project in release mode (-O2)"
       },
       {
-          "label": "🛠️ Build Entire Project (fast)",
+          "label": "⚙️ Build Entire Project (fast)",
           "type": "shell",
           "command": "make",
           "args": [
               "all",
               "MODE=fast"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
+              }
+            }
+          ],
+          "group": "build",
+          "detail": "Builds the project in fast mode (-O3)"
+      },
+      {
+          "label": "⚙️🚀 Build Entire Project with CUDA (debug)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "all",
+              "MODE=debug",
+              "USE_CUDA=true"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
+              }
+            }
+          ],
+          "group": {
+              "kind": "build",
+              "isDefault": false
+          },
+          "detail": "Builds the entire project in debug mode (-g -O0)"
+      },
+      {
+          "label": "⚙️🚀 Build Entire Project with CUDA (fast)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "all",
+              "MODE=fast",
+              "USE_CUDA=true"
           ],
           "options": {
               "cwd": "${workspaceFolder}"
@@ -191,6 +252,55 @@
               "active",
               "MODE=fast",
               "SINGLE_SRC=${file}"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+            {
+              "owner": "cpp",
+              "fileLocation": ["relative", "${workspaceFolder}"],
+              "pattern": {
+                "regexp": "^(.*):(\\d+):(\\d+): (warning|error): (.*)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
+              }
+            }
+          ],
+          "group": "build",
+          "detail": "Builds the currently active .cpp file in fast mode (-O3)"
+      }, 
+      {
+          "label": "🛠️🚀 Build Active File with CUDA (debug)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "active",
+              "MODE=debug",
+              "SINGLE_SRC=${file}",
+              "USE_CUDA=true"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "problemMatcher": [
+              "$gcc"
+          ],
+          "group": "build",
+          "detail": "Builds the currently active .cpp file in debug mode"
+      },
+      {
+          "label": "🛠️🚀 Build Active File with CUDA (fast)",
+          "type": "shell",
+          "command": "make",
+          "args": [
+              "active",
+              "MODE=fast",
+              "SINGLE_SRC=${file}",
+              "USE_CUDA=true"
           ],
           "options": {
               "cwd": "${workspaceFolder}"
